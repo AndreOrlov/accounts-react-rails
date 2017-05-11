@@ -1,6 +1,7 @@
 @Record = React.createClass
   getInitialState: ->
     edit: false
+    formErrors: {}
 
   handleToggle: (e) ->
     e.preventDefault()
@@ -19,19 +20,19 @@
   handleEdit: (e) ->
     e.preventDefault()
     data =
-      title: React.findDOMNode(@refs.title).value
-      date: React.findDOMNode(@refs.date).value
-      amount: React.findDOMNode(@refs.amount).value
-    # jQuery doesn't have a $.put shortcut method either
+      title: ReactDOM.findDOMNode(@refs.title).value
+      date: ReactDOM.findDOMNode(@refs.date).value
+      amount: ReactDOM.findDOMNode(@refs.amount).value
     $.ajax
       method: 'PUT'
-      url: "/records/#{ @props.record.id }"
+      url: "/records/#{@props.record.id}"
       dataType: 'JSON'
-      data:
-        record: data
+      data: record: data
       success: (data) =>
-        @setState edit: false
+        @setState @getInitialState()
         @props.handleEditRecord @props.record, data
+      error: (response, status, err) =>
+        @setState formErrors: response.responseJSON
 
   recordRow: ->
     React.DOM.tr null,
@@ -63,11 +64,13 @@
           defaultValue: @props.record.title
           ref: 'title'
       React.DOM.td null,
-        React.DOM.input
-          className: 'form-control'
-          type: 'number'
-          defaultValue: @props.record.amount
-          ref: 'amount'
+        React.DOM.div
+          className: 'form-group' + if @state.formErrors['amount'] then ' has-error' else ''
+          React.DOM.input
+            className: 'form-control'
+            type: 'number'
+            defaultValue: @props.record.amount
+            ref: 'amount'
       React.DOM.td null,
         React.DOM.a
           className: 'btn btn-default'

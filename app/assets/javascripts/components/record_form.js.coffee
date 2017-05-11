@@ -3,6 +3,7 @@
     title: ''
     date: ''
     amount: ''
+    formErrors: {}
 
   valid: ->
     @state.title && @state.date && @state.amount
@@ -13,10 +14,21 @@
 
   handleSubmit: (e) ->
     e.preventDefault()
-    $.post '', { record: @state }, (data) =>
-      @props.handleNewRecord data
-      @setState @getInitialState()
-    , 'JSON'
+#    $.post '', { record: @state }, (data) =>
+#      @props.handleNewRecord data
+#      @setState @getInitialState()
+#    , 'JSON'
+    $.ajax
+      method: 'POST'
+      url: "/records"
+      dataType: 'JSON'
+      data: record: @state
+      success: (data) =>
+        @props.handleNewRecord data
+        @setState @getInitialState()
+      error: (response, status, err) =>
+        @setState formErrors: response.responseJSON
+
 
   render: ->
     React.DOM.form
@@ -41,7 +53,7 @@
           value: @state.title
           onChange: @handleChange
       React.DOM.div
-        className: 'form-group'
+        className: 'form-group' + if @state.formErrors['amount'] then ' has-error' else ''
         React.DOM.input
           type: 'number'
           className: 'form-control'
