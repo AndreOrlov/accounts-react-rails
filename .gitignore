@@ -9,6 +9,8 @@
 !/log/.keep
 /tmp
 
+.idea
+
 *.rbc
 capybara-*.html
 .rspec
